@@ -26,6 +26,7 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.backend import tf
 from keras.initializers import glorot_uniform
 
+
 def get_data(data_info="train",folder=None, resolution=(128,128)):
     """
     Itera sobre cada carpeta que contiene mascaras e imagenes completas. Unicamente devuelve arrays de numpy
@@ -36,8 +37,9 @@ def get_data(data_info="train",folder=None, resolution=(128,128)):
     images = list()
     id_list = list(os.walk(folder))[0][1]
     [images.append(img_to_array(load_img("{folder}/{uid}/images/{uid}.png".format(folder=folder,uid=img_id)))) for img_id in tqdm(id_list)]
+    logging.info("Redimensionando imágenes a {resolution}".format(resolution=resolution))
+    images = [resize(image.astype(np.uint8),resolution) for image in tqdm(images) ]
     res = np.asarray(images, dtype=object)
-    logging.info("Data shape: %s" %res.shape)
     return res
 
 def get_masks(mask_path, resolution=(128,128)):
@@ -60,7 +62,7 @@ def get_masks(mask_path, resolution=(128,128)):
             total_mask = total_mask + img_mask_resized
         total_mask[total_mask > 0] = 1
         labeled_images.append(total_mask)
-    res = np.asarray(labeled_images, dtype=object)
+    res = np.asarray(labeled_images, dtype=object).reshape(-1,resolution[0],resolution[1],1)
     return res
 
 def get_model():
@@ -69,7 +71,7 @@ def get_model():
   porque las imagenes de nuestro conjunto de entrenamiento tienen aproximadamente
   la mitad de la resolucion de los ejempos de U-Net.
   """
-  inputs = Input((None, None,3))
+  inputs = Input((128, 128,3))
 
   conv1 = Conv2D(64, 3, padding = 'same', kernel_initializer = 'he_normal')(inputs) # 64 : 4 = 16
   conv1 = LeakyReLU(alpha=0.3)(conv1)

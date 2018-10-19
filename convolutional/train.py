@@ -10,7 +10,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 
-#Y_train = get_masks('data/stage1/stage1_train/')
+Y_train = get_masks('data/stage1/stage1_train/')
 X_train = get_data('TRAIN STAGE 1', 'data/stage1/stage1_train')
 
 model = get_model()
@@ -24,4 +24,4 @@ checkpoint = ModelCheckpoint('not_augmented_%sepochs_%fvalidationsize_%sbatchsiz
                             monitor='val_iou', verbose=1, save_best_only=True, mode='max')
 callbacks = [checkpoint, early_stopping]
 
-_ = model.fit(X_train, X_train, validation_split=validation_size, batch_size=batch_size, epochs=epochs, callbacks=callbacks, verbose=1)
+_ = model.fit(x=X_train, y=Y_train, validation_split=validation_size, batch_size=batch_size, epochs=epochs, callbacks=callbacks, verbose=1)
