@@ -65,13 +65,13 @@ def get_masks(mask_path, resolution=(128,128)):
     res = np.asarray(labeled_images, dtype=object).reshape(-1,resolution[0],resolution[1],1)
     return res
 
-def get_model():
+def get_model(resolution=(128,128)):
   """
   Basado en la arquitectura de la U-Net. Los kenerls de convolucion han sido reducidos
   porque las imagenes de nuestro conjunto de entrenamiento tienen aproximadamente
   la mitad de la resolucion de los ejempos de U-Net.
   """
-  inputs = Input((128, 128,3))
+  inputs = Input(*resolution,3))
 
   conv1 = Conv2D(32, 3, padding = 'same', kernel_initializer = 'he_normal')(inputs) # 64 : 4 = 16
   conv1 = LeakyReLU(alpha=0.3)(conv1)
