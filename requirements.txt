@@ -4,3 +4,4 @@ keras
 imageio
 scikit-image
 numpy
+tqdm
