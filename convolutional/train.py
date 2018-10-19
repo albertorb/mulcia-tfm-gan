@@ -11,8 +11,8 @@ logging.basicConfig(level=logging.INFO)
 
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument("--batch-size", help="Set the batch size")
-parser.add_argument("--epochs", help="Set number of epochs")
+parser.add_argument("--batch-size", help="Set the batch size", type=int)
+parser.add_argument("--epochs", help="Set number of epochs", type=int)
 args = parser.parse_args()
 
 
