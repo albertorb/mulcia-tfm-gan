@@ -1,0 +1,6 @@
+pandas
+tensorflow-gpu
+keras
+imageio
+scikit-image
+numpy
