@@ -27,7 +27,7 @@ args = parser.parse_args()
 Y_train = get_masks(args.label, resolution=(args.resolution,args.resolution))
 X_train = get_data(args.train, args.train, resolution=(args.resolution,args.resolution))
 
-model = get_model(args.resolution)
+model = get_model(resolution=(args.resolution,args.resolution))
 
 epochs = args.epochs or 1
 validation_size = 0.1
