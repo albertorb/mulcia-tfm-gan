@@ -71,7 +71,7 @@ def get_model(resolution=(128,128)):
   porque las imagenes de nuestro conjunto de entrenamiento tienen aproximadamente
   la mitad de la resolucion de los ejempos de U-Net.
   """
-  inputs = Input(*resolution,3))
+  inputs = Input(*resolution,3)
 
   conv1 = Conv2D(32, 3, padding = 'same', kernel_initializer = 'he_normal')(inputs) # 64 : 4 = 16
   conv1 = LeakyReLU(alpha=0.3)(conv1)
