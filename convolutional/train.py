@@ -9,15 +9,22 @@ from keras.callbacks import ModelCheckpoint, EarlyStopping
 import logging
 logging.basicConfig(level=logging.INFO)
 
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--batch-size", help="Set the batch size")
+parser.add_argument("--epochs", help="Set number of epochs")
+args = parser.parse_args()
+
+
 
 Y_train = get_masks('data/stage1/stage1_train/')
 X_train = get_data('TRAIN STAGE 1', 'data/stage1/stage1_train')
 
 model = get_model()
 
-epochs = 1
+epochs = args.epochs or 1
 validation_size = 0.1
-batch_size = 16
+batch_size = args.batch_size or 8
 
 early_stopping = EarlyStopping(monitor='val_iou', min_delta=0, patience=6, verbose=1, mode='max')
 checkpoint = ModelCheckpoint('not_augmented_%sepochs_%fvalidationsize_%sbatchsize.hdf5' %(epochs,validation_size, batch_size),
