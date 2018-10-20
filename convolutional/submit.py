@@ -24,7 +24,7 @@ args = parser.parse_args()
 
 model = load_trained_model(args.model_dir)
 
-test = get_data(args.test_dir,args.test_dir,args.resolution)
+test = get_data(args.test_dir,args.test_dir,resolution=(args.resolution,args.resolution))
 
 logging.info("Realizando predicciones sobre el conjunto de test")
 predictions = model.predict(test)
