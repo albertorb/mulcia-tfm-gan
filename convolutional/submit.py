@@ -30,7 +30,7 @@ logging.info("Realizando predicciones sobre el conjunto de test")
 predictions = model.predict(test)
 logging.info("Completado")
 
-resized_predictions = get_test_original_resolution(test, get_test_resolutions(args.test_dir))
+resized_predictions = get_test_original_resolution(predictions, get_test_resolutions(args.test_dir))
 individualized_masks_with_uid = get_predicted_mask_separated(get_test_ids(args.test_dir) ,resized_predictions)
 logging.info(individualized_masks_with_uid)
 encoded_masks = apply_encoding(individualized_masks_with_uid)
