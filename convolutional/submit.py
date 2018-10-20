@@ -27,7 +27,7 @@ model = load_trained_model(args.model_dir)
 test = get_data(args.test_dir,args.test_dir,resolution=(args.resolution,args.resolution))
 
 logging.info("Realizando predicciones sobre el conjunto de test")
-predictions = np.asarray[model.predict(t) for t in tqdm(test)]
+predictions = np.asarray([model.predict(t) for t in tqdm(test)])
 #predictions = model.predict(test)
 logging.info("Completado")
 
