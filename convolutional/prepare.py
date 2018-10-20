@@ -19,7 +19,7 @@ from skimage.morphology import label
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 
 from keras.models import Model, load_model
-from keras.layers import Dense, Input, merge, Dropout, Lambda, BatchNormalization, LeakyReLU, PReLU
+from keras.layers import Dense, Input, concatenate, Dropout, Lambda, BatchNormalization, LeakyReLU, PReLU
 from keras.constraints import maxnorm
 from keras.optimizers import Adam, SGD
 from keras.layers.convolutional import Conv2D, UpSampling2D, MaxPooling2D
@@ -129,7 +129,7 @@ def get_model(resolution=(128,128)):
 
   up6 = Conv2D(256, 2, padding = 'same', kernel_initializer = 'he_normal')(UpSampling2D(size = (2,2))(drop5))
   up6 = LeakyReLU(alpha=0.3)(up6)
-  merge6 = merge([drop4,up6], mode = 'concat', concat_axis = 3)
+  merge6 = concatenate([drop4,up6],  axis = 3)
   conv6 = Conv2D(256, 3, padding = 'same', kernel_initializer = 'he_normal')(merge6)
   conv6 = LeakyReLU(alpha=0.3)(conv6)
   conv6 = Conv2D(256, 3, padding = 'same', kernel_initializer = 'he_normal')(conv6)
@@ -137,7 +137,7 @@ def get_model(resolution=(128,128)):
 
   up7 = Conv2D(128, 2, padding = 'same', kernel_initializer = 'he_normal')(UpSampling2D(size = (2,2))(conv6))
   up7 = LeakyReLU(alpha=0.3)(up7)
-  merge7 = merge([conv3,up7], mode = 'concat', concat_axis = 3)
+  merge7 = concatenate([conv3,up7], axis = 3)
   conv7 = Conv2D(128, 3, padding = 'same', kernel_initializer = 'he_normal')(merge7)
   conv7 = LeakyReLU(alpha=0.3)(conv7)
   conv7 = Conv2D(128, 3, padding = 'same', kernel_initializer = 'he_normal')(conv7)
@@ -145,7 +145,7 @@ def get_model(resolution=(128,128)):
 
   up8 = Conv2D(64, 2,padding = 'same', kernel_initializer = 'he_normal')(UpSampling2D(size = (2,2))(conv7))
   up8 = LeakyReLU(alpha=0.3)(up8)
-  merge8 = merge([conv2,up8], mode = 'concat', concat_axis = 3)
+  merge8 = concatenate([conv2,up8], axis = 3)
   conv8 = Conv2D(64, 3, padding = 'same', kernel_initializer = 'he_normal')(merge8)
   conv8 = LeakyReLU(alpha=0.3)(conv8)
   conv8 = Conv2D(64, 3, padding = 'same', kernel_initializer = 'he_normal')(conv8)
@@ -153,7 +153,7 @@ def get_model(resolution=(128,128)):
 
   up9 = Conv2D(32, 2, padding = 'same', kernel_initializer = 'he_normal')(UpSampling2D(size = (2,2))(conv8))
   up9 = LeakyReLU(alpha=0.3)(up9)
-  merge9 = merge([conv1,up9], mode = 'concat', concat_axis = 3)
+  merge9 = concatenate([conv1,up9], axis = 3)
   conv9 = Conv2D(32, 3, padding = 'same', kernel_initializer = 'he_normal')(merge9)
   conv9 = LeakyReLU(alpha=0.3)(conv9)
   conv9 = Conv2D(32, 3, padding = 'same', kernel_initializer = 'he_normal')(conv9)
