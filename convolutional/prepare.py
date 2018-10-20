@@ -9,7 +9,8 @@ import pandas as pd
 import numpy as np
 import os
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='[tfm-nuclei] - %(message)s')
+
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -28,6 +29,68 @@ from keras.backend import tf
 from keras.initializers import glorot_uniform
 
 
+def get_test_ids(test_dir):
+    """
+    Devuelve los UIDs del conjunto de test.
+    """
+    logging.info("Creando lista de UIDs para test")
+    return list(os.walk(test_dir))[0][1]
+
+def apply_encoding(data):
+    """
+    Aplica una codificación a las máscaras.
+    La iteración que se realiza sobre el rango permite identificar de forma única a cada
+    núcleo de la máscara, aplicándose a cada uno la codificación run length.
+    """
+    logging.info("Codificando datos en formato Run Length")
+    rle_masks = list()
+    for uid, region in tqdm(data):
+      for i in range(1, region.max() + 1):
+        rle_masks.append([uid,run_length_encode(region == i)])
+    return rle_masks
+
+def run_length_encode(mask):
+    """
+    Condifica el conjunto de datos al formato run-length propuesto en la
+    competición de kaggle. El valor de entrada, mask, debe ser un array de numpy
+    que previamente haya sido tratado por la funcion label de skimage.morphology.
+    Dicha función realiza una clusterización de regiones, lo cual servirá para
+    identificar individualmente a los núcleos dentro de la máscara.
+    La forma en la que identifica los clusteres, es asignado a cada pixel un valor
+    en función del grupo al que pertenece.
+    """
+    dots = np.where(x.T.flatten()==1)[0]
+    run_lengths = []
+    prev = -2
+    for b in dots:
+        if (b>prev+1): run_lengths.extend((b+1, 0))
+        run_lengths[-1] += 1
+        prev = b
+    return run_lengths
+
+def get_predicted_mask_separated(uids,images):
+    """
+    Dado un dataset de predicción, devuelven un array donde cada elemento
+    se corresponde con una máscara unitaria por nucleo. Para facilitar su uso
+    posteriormente, se transforma en array de tuplas, siendo el primer elemento
+    siempre el uid de la imagen. El valor 128 es un umbral para establecer
+    cuando se considera positivo o negativo el pixel con respecto a su inclusión
+    en la máscara.
+    """
+    logging.info("Separando máscaras de forma atómica")
+    masks = [(id,label(img > 128)) for id,img in zip(uids,images)]
+    logging.info("Completado")
+    return masks
+
+
+def load_trained_model(model_dir=None):
+    """
+    Devuelve instancia de un modelo exportado con sus pesos ya entrenados.
+    """
+    logging.info("Cargando modelo y pesos...")
+    model = load_model(model_dir, custom_objects={'iou': iou})
+    logging.info("Completado")
+    return model
 
 def get_test_original_resolution(predictions, resolutions):
     """

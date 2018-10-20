@@ -7,7 +7,7 @@ from prepare import get_data, get_masks, get_model
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='[tfm-nuclei] - %(message)s')
 
 import argparse
 parser = argparse.ArgumentParser()
