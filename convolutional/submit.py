@@ -5,7 +5,7 @@ Generate submission for kaggle competition.
 """
 
 from keras.models import load_model
-from prepare import get_data, get_test_resolutions, get_test_original_resolution
+from prepare import get_data, get_test_resolutions, get_test_original_resolution, iou
 
 import logging
 logging.basicConfig(level=logging.INFO)
