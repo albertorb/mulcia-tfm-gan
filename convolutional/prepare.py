@@ -98,7 +98,7 @@ def get_test_original_resolution(predictions, resolutions):
     real.
     """
     logging.info("Devolviendo predicciones a su resolución original")
-    resized_predictions = [resize(image.astype(np.uint8),resolutions[index][1]) for index,image in enumerate(tqdm(predictions))]
+    resized_predictions = [resize(image.astype(np.float32),resolutions[index][1]) for index,image in enumerate(tqdm(predictions))]
     return resized_predictions
 
 def get_test_resolutions(test_dir=None):
