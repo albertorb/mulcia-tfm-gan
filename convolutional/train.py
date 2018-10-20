@@ -39,3 +39,9 @@ checkpoint = ModelCheckpoint('not_augmented_%sepochs_%fvalidationsize_%sbatchsiz
 callbacks = [checkpoint, early_stopping]
 
 _ = model.fit(x=X_train, y=Y_train, validation_split=validation_size, batch_size=batch_size, epochs=epochs, callbacks=callbacks, verbose=1)
+
+try:
+    logging.info("Saving model weights to file")
+    model.save(args.export_dir or "generated_model")
+except Exception as e:
+    logging.error(e)

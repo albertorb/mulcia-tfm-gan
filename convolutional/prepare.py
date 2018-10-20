@@ -27,6 +27,28 @@ from keras.backend import tf
 from keras.initializers import glorot_uniform
 
 
+def get_test_original_resolution(predictions, resolutions):
+    """
+    Convierte las imágenes generadas por la red como predicciones a su resolución
+    real.
+    """
+    logging.info("Devolviendo predicciones a su resolución original")
+    resized_predictions = [resize(image.astype(np.uint8),resolutions[index][1]) for index,image in enumerate(tqdm(predictions))]
+    return resized_predictions
+
+def get_test_resolutions(test_dir=None):
+    """
+    Devuelve una lista de tuplas ID de imagen y Resolución de la misma.
+    Es necesario para devolver a su resolución original a las máscaras generadas
+    por la red neuronal.
+    """
+    logging.info("Obteniendo resoluciones del conjunto de test")
+    logging.info("Ruta {path}".format(path=test_dir))
+    id_list = list(os.walk(test_dir))[0][1]
+    img_path = "{folder}/{uid}/images/{uid}.png"
+    resolutions = [(id,img_to_array(load_img(img_path.format(folder=test_dir,uid=id))).shape) for id in tqdm(id_list)]
+    return resolutions
+
 def get_data(data_info="train",folder=None, resolution=(128,128)):
     """
     Itera sobre cada carpeta que contiene mascaras e imagenes completas. Unicamente devuelve arrays de numpy
@@ -146,7 +168,7 @@ def get_model(resolution=(128,128)):
 
   return model
 
-def metric(y_true_in, y_pred_in, print_table=False):
+def iou_metric(y_true_in, y_pred_in, print_table=False):
     """
     Métrica intersección sobre la unión.
     """

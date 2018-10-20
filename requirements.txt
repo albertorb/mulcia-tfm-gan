@@ -5,3 +5,4 @@ imageio
 scikit-image
 numpy
 tqdm
+h5py
