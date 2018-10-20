@@ -32,8 +32,9 @@ logging.info("Completado")
 
 resized_predictions = get_test_original_resolution(predictions, get_test_resolutions(args.test_dir))
 individualized_masks_with_uid = get_predicted_mask_separated(get_test_ids(args.test_dir) ,resized_predictions)
-logging.info(individualized_masks_with_uid)
 encoded_masks = apply_encoding(individualized_masks_with_uid)
-logging.info(encoded_masks)
+
 submission = pd.DataFrame(np.array(encoded_masks, dtype=object), columns=["ImageId", "EncodedPixels"])
+submission['EncodedPixels'] = pd.Series(submission.EncodedPixels.values).apply(lambda x: ' '.join(str(y) for y in x))
+submission.to_csv("arb_submission.csv", index=False)
 logging.info(submission.head())

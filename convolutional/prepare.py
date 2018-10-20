@@ -59,7 +59,7 @@ def run_length_encode(mask):
     La forma en la que identifica los clusteres, es asignado a cada pixel un valor
     en función del grupo al que pertenece.
     """
-    dots = np.where(x.T.flatten()==1)[0]
+    dots = np.where(mask.T.flatten()==1)[0]
     run_lengths = []
     prev = -2
     for b in dots:
@@ -73,12 +73,12 @@ def get_predicted_mask_separated(uids,images):
     Dado un dataset de predicción, devuelven un array donde cada elemento
     se corresponde con una máscara unitaria por nucleo. Para facilitar su uso
     posteriormente, se transforma en array de tuplas, siendo el primer elemento
-    siempre el uid de la imagen. El valor 128 es un umbral para establecer
+    siempre el uid de la imagen. El valor 0.5 es un umbral para establecer
     cuando se considera positivo o negativo el pixel con respecto a su inclusión
     en la máscara.
     """
     logging.info("Separando máscaras de forma atómica")
-    masks = [(id,label(img > 128)) for id,img in zip(uids,images)]
+    masks = [(id,label(img > 0.5)) for id,img in zip(uids,images)]
     logging.info("Completado")
     return masks
 
