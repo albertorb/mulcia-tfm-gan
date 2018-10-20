@@ -111,7 +111,7 @@ def get_test_resolutions(test_dir=None):
     logging.info("Ruta {path}".format(path=test_dir))
     id_list = list(os.walk(test_dir))[0][1]
     img_path = "{folder}/{uid}/images/{uid}.png"
-    resolutions = [(id,img_to_array(load_img(img_path.format(folder=test_dir,uid=id))).shape) for id in tqdm(id_list)]
+    resolutions = [(id,img_to_array(load_img(img_path.format(folder=test_dir,uid=id))).shape[:2]) for id in tqdm(id_list)]
     return resolutions
 
 def get_data(data_info="train",folder=None, resolution=(128,128)):
