@@ -126,7 +126,7 @@ def get_data(data_info="train",folder=None, resolution=(128,128)):
     [images.append(img_to_array(load_img("{folder}/{uid}/images/{uid}.png".format(folder=folder,uid=img_id)))) for img_id in tqdm(id_list)]
     logging.info("Redimensionando imágenes a {resolution}".format(resolution=resolution))
     images = [resize(image.astype(np.uint8),resolution) for image in tqdm(images) ]
-    res = np.asarray(images, dtype=object)
+    res = np.asarray(images, dtype=object) # da problemas de memoria con 256x256
     return res
 
 def get_masks(mask_path, resolution=(128,128)):
