@@ -82,7 +82,6 @@ def get_predicted_mask_separated(uids,images):
     logging.info("Completado")
     return masks
 
-
 def load_trained_model(model_dir=None):
     """
     Devuelve instancia de un modelo exportado con sus pesos ya entrenados.
@@ -154,7 +153,7 @@ def get_masks(mask_path, resolution=(128,128)):
 
 def get_model(resolution=(128,128)):
   """
-  Basado en la arquitectura de la U-Net. Los kenerls de convolucion han sido reducidos
+  Basado en la arquitectura de la U-Net. Los kernels de convolucion han sido reducidos
   porque las imagenes de nuestro conjunto de entrenamiento tienen aproximadamente
   la mitad de la resolucion de los ejempos de U-Net.
   """
@@ -224,12 +223,10 @@ def get_model(resolution=(128,128)):
   conv9 = Conv2D(2, 3, padding = 'same', kernel_initializer = 'he_normal')(conv9)
   conv9 = LeakyReLU(alpha=0.3)(conv9)
   conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
-  #   morpho = Lambda(lambda x: grey_dilation(grey_erosion(x,size=8),6))(conv10)
 
   model = Model(input = inputs, output = conv10)
 
   model.compile(optimizer = Adam(lr = 1e-4), loss = 'binary_crossentropy', metrics = [iou])
-  #model.compile(optimizer = 'rmsprop', loss = 'binary_crossentropy', metrics = [iou])
 
   return model
 
@@ -245,24 +242,19 @@ def iou_metric(y_true_in, y_pred_in, print_table=False):
 
     intersection = np.histogram2d(labels.flatten(), y_pred.flatten(), bins=(true_objects, pred_objects))[0]
 
-    # Compute areas (needed for finding the union between all objects)
     area_true = np.histogram(labels, bins = true_objects)[0]
     area_pred = np.histogram(y_pred, bins = pred_objects)[0]
     area_true = np.expand_dims(area_true, -1)
     area_pred = np.expand_dims(area_pred, 0)
 
-    # Compute union
     union = area_true + area_pred - intersection
 
-    # Exclude background from the analysis
     intersection = intersection[1:,1:]
     union = union[1:,1:]
     union[union == 0] = 1e-9
 
-    # Compute the intersection over union
     iou = intersection / union
 
-    # Precision helper function
     def precision_at(threshold, iou):
         matches = iou > threshold
         true_positives = np.sum(matches, axis=1) == 1   # Correct objects
@@ -271,7 +263,6 @@ def iou_metric(y_true_in, y_pred_in, print_table=False):
         tp, fp, fn = np.sum(true_positives), np.sum(false_positives), np.sum(false_negatives)
         return tp, fp, fn
 
-    # Loop over IoU thresholds
     prec = []
     if print_table:
         print("Thresh\tTP\tFP\tFN\tPrec.")
