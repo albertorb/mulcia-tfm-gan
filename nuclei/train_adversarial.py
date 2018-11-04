@@ -91,20 +91,22 @@ def train_gan_augmented(GAN, G, D, X_train, Y_train, epochs=(args.epochs or 20),
         d_loss_batch = []
         for batch, (X,Y) in enumerate(get_batches_for_gan_augmented(train_generator, batch_size, n_samples)):
           half_batch = int(len(X) / 2)
-          #       sys.stdout.write('\r'+" Batch %s/%s %s/%s" %(batch, int(n_samples/batch_size), len(X),len(X)))
+          sys.stdout.write('\r'+"[Epoch %s] Batch %s de %s" %(epoch, batch, batches[-1]))
           real_images, real_labels = Y[:half_batch], np.ones((half_batch, 1, 1, 1)) - smooth_labels # see: https://github.com/soumith/ganhacks#6-use-soft-and-noisy-labels
           fake_images, fake_labels = G.predict(X[half_batch:]), np.zeros((half_batch, 1, 1, 1)) + smooth_labels
           set_trainability(D, True)
           d_loss_real = D.train_on_batch(real_images, real_labels)
           d_loss_fake = D.train_on_batch(fake_images, fake_labels)
           set_trainability(D, False)
-          g_loss.append(GAN.train_on_batch(X, np.ones((len(X), 1, 1, 1))-smooth_labels))
+          #g_loss.append(GAN.train_on_batch(X, np.ones((len(X), 1, 1, 1))-smooth_labels))
           d_loss.append(0.5 * np.add(d_loss_real, d_loss_fake))
           #       sys.stdout.write('\r'+"Batch %s/%s --> (d_real,d_fake): (%s,%s) || (d_loss,g_loss) = (%s, %s)" %(batch, int(n_samples/batch_size),d_loss_real,d_loss_fake, d_loss[epoch], g_loss[int(epoch/3)]))
           img = 256*G.predict(X[0:3])[1]
           if (epoch % 3) == 0:
             g_loss.append(GAN.train_on_batch(X, np.ones((len(X), 1, 1, 1))-smooth_labels))
             try:
+                logging.info("\t\t perdida generador --> %s" %(g_loss[int(epoch/3)]))
+                logging.info("\t\t perdida discriminador --> %s" %(d_loss[epoch]))
                 sys.stdout.write('\r'+"Batch %s/%s --> (d_real,d_fake): (%s,%s) || (d_loss,g_loss) = (%s, %s)" %(batch, int(n_samples/batch_size),d_loss_real,d_loss_fake, d_loss[-1], g_loss[-1]))
             except Exception as e:
                 logging.error(e)
@@ -150,8 +152,8 @@ def train(GAN, G, D, X_train, Y_train, epochs=(args.epochs or 20), n_samples=570
         if (epoch % 3) == 0:
           logging.info("\t\t perdida generador --> %s" %(g_loss[int(epoch/3)]))
 
-Y = get_masks(args.label, resolution=(args.resolution,args.resolution))
-X = get_data(args.train, args.train, resolution=(args.resolution,args.resolution))
+Y_t = get_masks(args.label, resolution=(args.resolution,args.resolution))
+X_t = get_data(args.train, args.train, resolution=(args.resolution,args.resolution))
 
 logging.info("Cargando red discriminadora")
 discriminator = get_discriminator()
@@ -159,5 +161,5 @@ logging.info("Cargando red discriminadora")
 generator = get_generator()
 logging.info("Cargando red adversaria")
 GAN = get_gan(generator,discriminator)
-#train(GAN, generator, discriminator, X, Y)
-train_gan_augmented(GAN, generator, discriminator, X, Y)
+#train(GAN, generator, discriminator, X_t, Y_t)
+train_gan_augmented(GAN, generator, discriminator, X_t, Y_t)
