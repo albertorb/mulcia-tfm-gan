@@ -68,7 +68,7 @@ def get_generator(resolution=(128,128)):
     """
     Implementación de red generadora
     """
-    return get_convolutional_model()
+    return get_convolutional_model(resolution)
 
 def get_gan(generator,discriminator,resolution=(128,128)):
     """
