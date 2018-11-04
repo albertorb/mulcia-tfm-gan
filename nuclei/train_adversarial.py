@@ -104,7 +104,10 @@ def train_gan_augmented(GAN, G, D, X_train, Y_train, epochs=(args.epochs or 20),
       img = 256*G.predict(X[0:3])[1]
       if (epoch % 3) == 0:
         g_loss.append(GAN.train_on_batch(X, np.ones((len(X), 1, 1, 1))-smooth_labels))
-        sys.stdout.write('\r'+"Batch %s/%s --> (d_real,d_fake): (%s,%s) || (d_loss,g_loss) = (%s, %s)" %(batch, int(n_samples/batch_size),d_loss_real,d_loss_fake, d_loss[-1], g_loss[-1]))
+        try:
+            sys.stdout.write('\r'+"Batch %s/%s --> (d_real,d_fake): (%s,%s) || (d_loss,g_loss) = (%s, %s)" %(batch, int(n_samples/batch_size),d_loss_real,d_loss_fake, d_loss[-1], g_loss[-1]))
+        except Exception e:
+            logging.error(e)
       else:
         sys.stdout.write('\r'+"Batch %s/%s --> (d_loss, -) = (%s, -)" %(batch, int(n_samples/batch_size), d_loss[-1]))
       d_loss.append(reduce(lambda x,y: (x+y)/2), d_loss_batch)
