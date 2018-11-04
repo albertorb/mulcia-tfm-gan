@@ -5,7 +5,7 @@ Deep Learning implementation for image segmentation.
 """
 
 import sys
-
+import numpy as np
 from prepare import set_trainability, get_gan, get_discriminator, get_generator, get_data, get_masks
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 
