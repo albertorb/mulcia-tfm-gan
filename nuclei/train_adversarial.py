@@ -124,31 +124,31 @@ def train(GAN, G, D, X_train, Y_train, epochs=(args.epochs or 20), n_samples=570
     g_loss = []
     epochs_range = range(epochs)
     for epoch in epochs_range:
-    batches = range(int(n_samples/batch_size))
-    for batch in batches:
-      half_batch = int(batch_size / 2)
-      sys.stdout.write('\r'+"[Epoch %s] Batch %s de %s" %(epoch, batch, batches[-1]))
-      if batch == batches[-1]:
-        from_ = half_batch * epoch
-        to_ = half_batch*epoch + half_batch
-        real_images, real_labels = np.array(Y_train[-half_batch:]), np.array(np.zeros((half_batch, 1, 1, 1)))
-        fake_images, fake_labels = generator.predict(np.array(X_train[-half_batch:])), np.array(np.ones((half_batch, 1, 1, 1)))
-      else:
-        from_ = half_batch * epoch
-        to_ = half_batch*epoch + half_batch
-        real_images, real_labels = np.array(Y_train[from_:to_]), np.zeros((half_batch, 1, 1, 1))
-        fake_images, fake_labels = generator.predict(np.array(X_train[from_:to_])), np.array(np.ones((half_batch, 1, 1, 1)))
+        batches = range(int(n_samples/batch_size))
+        for batch in batches:
+          half_batch = int(batch_size / 2)
+          sys.stdout.write('\r'+"[Epoch %s] Batch %s de %s" %(epoch, batch, batches[-1]))
+          if batch == batches[-1]:
+            from_ = half_batch * epoch
+            to_ = half_batch*epoch + half_batch
+            real_images, real_labels = np.array(Y_train[-half_batch:]), np.array(np.zeros((half_batch, 1, 1, 1)))
+            fake_images, fake_labels = generator.predict(np.array(X_train[-half_batch:])), np.array(np.ones((half_batch, 1, 1, 1)))
+          else:
+            from_ = half_batch * epoch
+            to_ = half_batch*epoch + half_batch
+            real_images, real_labels = np.array(Y_train[from_:to_]), np.zeros((half_batch, 1, 1, 1))
+            fake_images, fake_labels = generator.predict(np.array(X_train[from_:to_])), np.array(np.ones((half_batch, 1, 1, 1)))
 
-      set_trainability(discriminator, True)
-      d_loss_real = discriminator.train_on_batch(real_images, real_labels)
-      d_loss_fake = discriminator.train_on_batch(fake_images, fake_labels)
-      set_trainability(discriminator, False)
-      d_loss.append(0.5 * np.add(d_loss_real, d_loss_fake))
-      if (epoch % 3) == 0:
-        g_loss.append(GAN.train_on_batch(np.array(X_train[batch*epoch:batch*epoch +batch_size]), np.zeros((batch_size, 1, 1, 1))))
-    logging.info("\t\t perdida discriminador --> %s" %(d_loss[epoch]))
-    if (epoch % 3) == 0:
-      logging.info("\t\t perdida generador --> %s" %(g_loss[int(epoch/3)]))
+          set_trainability(discriminator, True)
+          d_loss_real = discriminator.train_on_batch(real_images, real_labels)
+          d_loss_fake = discriminator.train_on_batch(fake_images, fake_labels)
+          set_trainability(discriminator, False)
+          d_loss.append(0.5 * np.add(d_loss_real, d_loss_fake))
+          if (epoch % 3) == 0:
+            g_loss.append(GAN.train_on_batch(np.array(X_train[batch*epoch:batch*epoch +batch_size]), np.zeros((batch_size, 1, 1, 1))))
+        logging.info("\t\t perdida discriminador --> %s" %(d_loss[epoch]))
+        if (epoch % 3) == 0:
+          logging.info("\t\t perdida generador --> %s" %(g_loss[int(epoch/3)]))
 
 Y = get_masks(args.label, resolution=(args.resolution,args.resolution))
 X = get_data(args.train, args.train, resolution=(args.resolution,args.resolution))
