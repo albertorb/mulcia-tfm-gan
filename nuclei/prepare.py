@@ -70,7 +70,7 @@ def get_generator(resolution=(128,128)):
     """
     return get_convolutional_model()
 
-def get_gan(resolution=(128,128)):
+def get_gan(generator,discriminator,resolution=(128,128)):
     """
     Implementación de red adversaria
     """
