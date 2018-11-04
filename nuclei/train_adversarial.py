@@ -28,101 +28,102 @@ parser.add_argument("--export-dir", help="Ruta donde guardar los pesos generados
 args = parser.parse_args()
 
 def get_data_augmentation_generators(X_train, Y_train, batch_size=8):
-  """
-  """
-  data_gen_args = dict(rotation_range=60,
+    """
+    """
+    data_gen_args = dict(rotation_range=60,
                        width_shift_range=0.,
                        height_shift_range=0.,
                        zoom_range=0.)
-  image_datagen = ImageDataGenerator(**data_gen_args)
-  mask_datagen = ImageDataGenerator(**data_gen_args)
+    image_datagen = ImageDataGenerator(**data_gen_args)
+    mask_datagen = ImageDataGenerator(**data_gen_args)
 
-  val_image_datagen = ImageDataGenerator(**data_gen_args)
-  val_mask_datagen = ImageDataGenerator(**data_gen_args)
+    val_image_datagen = ImageDataGenerator(**data_gen_args)
+    val_mask_datagen = ImageDataGenerator(**data_gen_args)
 
-  seed = 1
-  image_datagen.fit(copy(np.array(X_train)[:600]), augment=True, seed=seed)
-  mask_datagen.fit(copy(np.array(Y_train)[:600]), augment=True, seed=seed)
+    seed = 1
+    image_datagen.fit(copy(np.array(X_train)[:600]), augment=True, seed=seed)
+    mask_datagen.fit(copy(np.array(Y_train)[:600]), augment=True, seed=seed)
 
-  val_image_datagen.fit(copy(np.array(X_train)[600:]), augment=True, seed=seed)
-  val_mask_datagen.fit(copy(np.array(Y_train)[600:]), augment=True, seed=seed)
+    val_image_datagen.fit(copy(np.array(X_train)[600:]), augment=True, seed=seed)
+    val_mask_datagen.fit(copy(np.array(Y_train)[600:]), augment=True, seed=seed)
 
-  image_generator = image_datagen.flow(copy(np.array(X_train)[:600]),seed=seed, batch_size=batch_size)
+    image_generator = image_datagen.flow(copy(np.array(X_train)[:600]),seed=seed, batch_size=batch_size)
 
-  mask_generator = mask_datagen.flow(copy(np.array(Y_train)[:600]),seed=seed, batch_size=batch_size)
+    mask_generator = mask_datagen.flow(copy(np.array(Y_train)[:600]),seed=seed, batch_size=batch_size)
 
-  val_image_generator = val_image_datagen.flow(copy(np.array(X_train)[600:]),seed=seed, batch_size=batch_size)
+    val_image_generator = val_image_datagen.flow(copy(np.array(X_train)[600:]),seed=seed, batch_size=batch_size)
 
-  val_mask_generator = val_mask_datagen.flow(copy(np.array(Y_train)[600:]),seed=seed, batch_size=batch_size)
+    val_mask_generator = val_mask_datagen.flow(copy(np.array(Y_train)[600:]),seed=seed, batch_size=batch_size)
 
-  train_generator = zip(image_generator, mask_generator)
-  validation_generator = zip(val_image_generator, val_mask_generator)
-  return train_generator, validation_generator
+    train_generator = zip(image_generator, mask_generator)
+    validation_generator = zip(val_image_generator, val_mask_generator)
+    return train_generator, validation_generator
 
 def get_batches_for_gan_augmented(train_generator, batch_size=32, n_samples=1000):
-  """
-  """
-  x_examples = []
-  y_examples = []
-  end_loop = int(n_samples/batch_size)
-  for i, (x,y) in enumerate(train_generator):
+    """
+    """
+    x_examples = []
+    y_examples = []
+    end_loop = int(n_samples/batch_size)
+    for i, (x,y) in enumerate(train_generator):
     if i == end_loop:
       break;
     x_examples.append(x)
     y_examples.append(y)
-  return zip(np.array(x_examples), np.array(y_examples))
+    return zip(np.array(x_examples), np.array(y_examples))
 
 
 
 def train_gan_augmented(GAN, G, D, X_train, Y_train, epochs=(args.epochs or 20), n_samples=570, batch_size=(args.batch_size or 8)):
-  """
-  """
-  d_loss = []
-  g_loss = []
-  smooth_labels = 0
-  epochs_range = range(epochs)
-  train_generator, _ = get_data_augmentation_generators(X_train, Y_train, batch_size)
-  #x_augmented, y_augmented = get_batches_for_gan_augmented(train_generator, batch_size, n_samples)
-  for epoch in epochs_range:
-    print("[epoch %s]" %epoch)
-    # Train discriminator
-    # Do it separately for real and fake images
-    #     batches = range(int(n_samples/batch_size))
-    d_loss_batch = []
-    for batch, (X,Y) in enumerate(get_batches_for_gan_augmented(train_generator, batch_size, n_samples)):
-      half_batch = int(len(X) / 2)
-      #       sys.stdout.write('\r'+" Batch %s/%s %s/%s" %(batch, int(n_samples/batch_size), len(X),len(X)))
-      real_images, real_labels = Y[:half_batch], np.ones((half_batch, 1, 1, 1)) - smooth_labels # see: https://github.com/soumith/ganhacks#6-use-soft-and-noisy-labels
-      fake_images, fake_labels = G.predict(X[half_batch:]), np.zeros((half_batch, 1, 1, 1)) + smooth_labels
-      set_trainability(D, True)
-      d_loss_real = D.train_on_batch(real_images, real_labels)
-      d_loss_fake = D.train_on_batch(fake_images, fake_labels)
-      set_trainability(D, False)
-      g_loss.append(GAN.train_on_batch(X, np.ones((len(X), 1, 1, 1))-smooth_labels))
-      d_loss_batch.append(0.5 * np.add(d_loss_real, d_loss_fake))
-      #       sys.stdout.write('\r'+"Batch %s/%s --> (d_real,d_fake): (%s,%s) || (d_loss,g_loss) = (%s, %s)" %(batch, int(n_samples/batch_size),d_loss_real,d_loss_fake, d_loss[epoch], g_loss[int(epoch/3)]))
-      img = 256*G.predict(X[0:3])[1]
-      if (epoch % 3) == 0:
-        g_loss.append(GAN.train_on_batch(X, np.ones((len(X), 1, 1, 1))-smooth_labels))
-        try:
-            sys.stdout.write('\r'+"Batch %s/%s --> (d_real,d_fake): (%s,%s) || (d_loss,g_loss) = (%s, %s)" %(batch, int(n_samples/batch_size),d_loss_real,d_loss_fake, d_loss[-1], g_loss[-1]))
-        except Exception e:
-            logging.error(e)
-      else:
-        sys.stdout.write('\r'+"Batch %s/%s --> (d_loss, -) = (%s, -)" %(batch, int(n_samples/batch_size), d_loss[-1]))
-      d_loss.append(reduce(lambda x,y: (x+y)/2), d_loss_batch)
+    """
+    """
+    d_loss = []
+    g_loss = []
+    smooth_labels = 0
+    epochs_range = range(epochs)
+    train_generator, _ = get_data_augmentation_generators(X_train, Y_train, batch_size)
+    #x_augmented, y_augmented = get_batches_for_gan_augmented(train_generator, batch_size, n_samples)
+    for epoch in epochs_range:
+        print("[epoch %s]" %epoch)
+        # Train discriminator
+        # Do it separately for real and fake images
+        #     batches = range(int(n_samples/batch_size))
+        d_loss_batch = []
+        for batch, (X,Y) in enumerate(get_batches_for_gan_augmented(train_generator, batch_size, n_samples)):
+          half_batch = int(len(X) / 2)
+          #       sys.stdout.write('\r'+" Batch %s/%s %s/%s" %(batch, int(n_samples/batch_size), len(X),len(X)))
+          real_images, real_labels = Y[:half_batch], np.ones((half_batch, 1, 1, 1)) - smooth_labels # see: https://github.com/soumith/ganhacks#6-use-soft-and-noisy-labels
+          fake_images, fake_labels = G.predict(X[half_batch:]), np.zeros((half_batch, 1, 1, 1)) + smooth_labels
+          set_trainability(D, True)
+          d_loss_real = D.train_on_batch(real_images, real_labels)
+          d_loss_fake = D.train_on_batch(fake_images, fake_labels)
+          set_trainability(D, False)
+          g_loss.append(GAN.train_on_batch(X, np.ones((len(X), 1, 1, 1))-smooth_labels))
+          d_loss_batch.append(0.5 * np.add(d_loss_real, d_loss_fake))
+          #       sys.stdout.write('\r'+"Batch %s/%s --> (d_real,d_fake): (%s,%s) || (d_loss,g_loss) = (%s, %s)" %(batch, int(n_samples/batch_size),d_loss_real,d_loss_fake, d_loss[epoch], g_loss[int(epoch/3)]))
+          img = 256*G.predict(X[0:3])[1]
+          if (epoch % 3) == 0:
+            g_loss.append(GAN.train_on_batch(X, np.ones((len(X), 1, 1, 1))-smooth_labels))
+            try:
+                sys.stdout.write('\r'+"Batch %s/%s --> (d_real,d_fake): (%s,%s) || (d_loss,g_loss) = (%s, %s)" %(batch, int(n_samples/batch_size),d_loss_real,d_loss_fake, d_loss[-1], g_loss[-1]))
+            except Exception as e:
+                logging.error(e)
+          else:
+            sys.stdout.write('\r'+"Batch %s/%s --> (d_loss, -) = (%s, -)" %(batch, int(n_samples/batch_size), d_loss[-1]))
+
+        d_loss.append(reduce(lambda x,y: (x+y)/2), d_loss_batch)
 
 
 
 
 def train(GAN, G, D, X_train, Y_train, epochs=(args.epochs or 20), n_samples=570, batch_size=(args.batch_size or 8)):
-  """
-  Entrenamiento adversario
-  """
-  d_loss = []
-  g_loss = []
-  epochs_range = range(epochs)
-  for epoch in epochs_range:
+    """
+    Entrenamiento adversario
+    """
+    d_loss = []
+    g_loss = []
+    epochs_range = range(epochs)
+    for epoch in epochs_range:
     batches = range(int(n_samples/batch_size))
     for batch in batches:
       half_batch = int(batch_size / 2)
