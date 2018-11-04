@@ -19,7 +19,7 @@ from skimage.transform import resize
 from skimage.morphology import label
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 
-from keras.models import Model, load_model
+from keras.models import Model, load_model, Sequential
 from keras.layers import Dense, Input, concatenate, Dropout, Lambda, BatchNormalization, LeakyReLU, PReLU
 from keras.constraints import maxnorm
 from keras.optimizers import Adam, SGD
@@ -74,7 +74,7 @@ def get_gan(resolution=(128,128)):
     """
     Implementación de red adversaria
     """
-    GAN = keras.models.Sequential([generator, discriminator], name='GAN')
+    GAN = Sequential([generator, discriminator], name='GAN')
     GAN.compile(optimizer=Adam(lr=1e4), loss='binary_crossentropy')
     GAN.summary()
     return GAN
