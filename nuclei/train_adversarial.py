@@ -99,7 +99,7 @@ def train_gan_augmented(GAN, G, D, X_train, Y_train, epochs=(args.epochs or 20),
           d_loss_fake = D.train_on_batch(fake_images, fake_labels)
           set_trainability(D, False)
           g_loss.append(GAN.train_on_batch(X, np.ones((len(X), 1, 1, 1))-smooth_labels))
-          d_loss_batch.append(0.5 * np.add(d_loss_real, d_loss_fake))
+          d_loss.append(0.5 * np.add(d_loss_real, d_loss_fake))
           #       sys.stdout.write('\r'+"Batch %s/%s --> (d_real,d_fake): (%s,%s) || (d_loss,g_loss) = (%s, %s)" %(batch, int(n_samples/batch_size),d_loss_real,d_loss_fake, d_loss[epoch], g_loss[int(epoch/3)]))
           img = 256*G.predict(X[0:3])[1]
           if (epoch % 3) == 0:
@@ -111,7 +111,7 @@ def train_gan_augmented(GAN, G, D, X_train, Y_train, epochs=(args.epochs or 20),
           else:
             sys.stdout.write('\r'+"Batch %s/%s --> (d_loss, -) = (%s, -)" %(batch, int(n_samples/batch_size), d_loss[-1]))
 
-        d_loss.append(reduce(lambda x,y: (x+y)/2), d_loss_batch)
+        #d_loss.append(reduce(lambda x,y: (x+y)/2), d_loss_batch)
 
 
 
