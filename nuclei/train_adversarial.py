@@ -84,7 +84,6 @@ def train_gan_augmented(GAN, G, D, X_train, Y_train, epochs=(args.epochs or 20),
     train_generator, _ = get_data_augmentation_generators(X_train, Y_train, batch_size)
     #x_augmented, y_augmented = get_batches_for_gan_augmented(train_generator, batch_size, n_samples)
     for epoch in epochs_range:
-        print("[epoch %s]" %epoch)
         # Train discriminator
         # Do it separately for real and fake images
         #     batches = range(int(n_samples/batch_size))
