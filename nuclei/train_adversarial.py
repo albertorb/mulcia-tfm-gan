@@ -66,10 +66,10 @@ def get_batches_for_gan_augmented(train_generator, batch_size=32, n_samples=1000
     y_examples = []
     end_loop = int(n_samples/batch_size)
     for i, (x,y) in enumerate(train_generator):
-    if i == end_loop:
-      break;
-    x_examples.append(x)
-    y_examples.append(y)
+        if i == end_loop:
+          break;
+        x_examples.append(x)
+        y_examples.append(y)
     return zip(np.array(x_examples), np.array(y_examples))
 
 
