@@ -3,7 +3,7 @@ __author__ = "alberto.rincon.borreguero@gmail.com"
 """
 Deep Learning implementation for image segmentation.
 """
-from prepare import get_data, get_masks, get_model
+from prepare import get_data, get_masks, get_convolutional_model
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 
 import logging
