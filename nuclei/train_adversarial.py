@@ -20,6 +20,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--batch-size", help="Tamaño del batch", type=int)
 parser.add_argument("--epochs", help="Número de épocas", type=int)
+parser.add_argument("--samples", help="Número de samples en aumento de datos", type=int)
 parser.add_argument("--resolution", help="Cambiar resolución de las imágenes durante entrenamiento. Sólo escribir una dimensión, ie: 128, para redimensionar a 128x128", type=int)
 parser.add_argument("--train", help="Ruta a las imagenes de entrenamiento ", type=str)
 parser.add_argument("--label", help="Ruta a las etiquetas de entrenamiento", type=str)
@@ -74,7 +75,7 @@ def get_batches_for_gan_augmented(train_generator, batch_size=32, n_samples=1000
 
 
 
-def train_gan_augmented(GAN, G, D, X_train, Y_train, epochs=(args.epochs or 20), n_samples=5000, batch_size=(args.batch_size or 8)):
+def train_gan_augmented(GAN, G, D, X_train, Y_train, epochs=(args.epochs or 20), n_samples=(args.samples or 1000), batch_size=(args.batch_size or 8)):
     """
     """
     d_loss = []
@@ -100,9 +101,9 @@ def train_gan_augmented(GAN, G, D, X_train, Y_train, epochs=(args.epochs or 20),
             sys.stdout.write('\r'+"[Epoch %s] Batch %s -- (d_loss_real,d_loss_fake) - (%s,%s)" %(epoch, batch,d_loss_real,d_loss_fake))
             if (epoch % 3) == 0:
                 g_loss.append(GAN.train_on_batch(np.array(X_train[batch*epoch:batch*epoch +batch_size]), np.zeros((batch_size, 1, 1, 1))))
-        logging.info("\t\t perdida discriminador --> %s\n" %(d_loss[epoch]))
+        logging.info("\nperdida discriminador --> %s" %(d_loss[epoch]))
         if (epoch % 3) == 0:
-          logging.info("\t\t perdida generador --> %s\n" %(g_loss[int(epoch/3)]))
+          logging.info("\nperdida generador --> %s\n" %(g_loss[int(epoch/3)]))
 
         #d_loss.append(reduce(lambda x,y: (x+y)/2), d_loss_batch)
 
@@ -154,3 +155,8 @@ logging.info("Cargando red adversaria")
 GAN = get_gan(generator,discriminator)
 #train(GAN, generator, discriminator, X_t, Y_t)
 train_gan_augmented(GAN, generator, discriminator, X_t, Y_t)
+try:
+    logging.info("Saving model weights to file")
+    GAN.save(args.export_dir or "generated_model")
+except Exception as e:
+    logging.error(e)
