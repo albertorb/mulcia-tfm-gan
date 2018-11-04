@@ -91,7 +91,7 @@ def train_gan_augmented(GAN, G, D, X_train, Y_train, epochs=(args.epochs or 20),
         d_loss_batch = []
         for batch, (X,Y) in enumerate(get_batches_for_gan_augmented(train_generator, batch_size, n_samples)):
           half_batch = int(len(X) / 2)
-          sys.stdout.write('\r'+"[Epoch %s] Batch %s de %s" %(epoch, batch, batches[-1]))
+          sys.stdout.write('\r'+"[Epoch %s] Batch %s" %(epoch, batch))
           real_images, real_labels = Y[:half_batch], np.ones((half_batch, 1, 1, 1)) - smooth_labels # see: https://github.com/soumith/ganhacks#6-use-soft-and-noisy-labels
           fake_images, fake_labels = G.predict(X[half_batch:]), np.zeros((half_batch, 1, 1, 1)) + smooth_labels
           set_trainability(D, True)
