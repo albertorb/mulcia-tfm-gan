@@ -74,7 +74,7 @@ def get_batches_for_gan_augmented(train_generator, batch_size=32, n_samples=1000
 
 
 
-def train_gan_augmented(GAN, G, D, X_train, Y_train, epochs=(args.epochs or 20), n_samples=570, batch_size=(args.batch_size or 8)):
+def train_gan_augmented(GAN, G, D, X_train, Y_train, epochs=(args.epochs or 20), n_samples=5000, batch_size=(args.batch_size or 8)):
     """
     """
     d_loss = []
