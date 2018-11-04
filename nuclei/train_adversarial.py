@@ -90,28 +90,20 @@ def train_gan_augmented(GAN, G, D, X_train, Y_train, epochs=(args.epochs or 20),
         #     batches = range(int(n_samples/batch_size))
         d_loss_batch = []
         for batch, (X,Y) in enumerate(get_batches_for_gan_augmented(train_generator, batch_size, n_samples)):
-          half_batch = int(len(X) / 2)
-          sys.stdout.write('\r'+"[Epoch %s] Batch %s" %(epoch, batch))
-          real_images, real_labels = Y[:half_batch], np.ones((half_batch, 1, 1, 1)) - smooth_labels # see: https://github.com/soumith/ganhacks#6-use-soft-and-noisy-labels
-          fake_images, fake_labels = G.predict(X[half_batch:]), np.zeros((half_batch, 1, 1, 1)) + smooth_labels
-          set_trainability(D, True)
-          d_loss_real = D.train_on_batch(real_images, real_labels)
-          d_loss_fake = D.train_on_batch(fake_images, fake_labels)
-          set_trainability(D, False)
-          #g_loss.append(GAN.train_on_batch(X, np.ones((len(X), 1, 1, 1))-smooth_labels))
-          d_loss.append(0.5 * np.add(d_loss_real, d_loss_fake))
-          #       sys.stdout.write('\r'+"Batch %s/%s --> (d_real,d_fake): (%s,%s) || (d_loss,g_loss) = (%s, %s)" %(batch, int(n_samples/batch_size),d_loss_real,d_loss_fake, d_loss[epoch], g_loss[int(epoch/3)]))
-          img = 256*G.predict(X[0:3])[1]
-          if (epoch % 3) == 0:
-            g_loss.append(GAN.train_on_batch(X, np.ones((len(X), 1, 1, 1))-smooth_labels))
-            try:
-                logging.info("\t\t perdida generador --> %s" %(g_loss[int(epoch/3)]))
-                logging.info("\t\t perdida discriminador --> %s" %(d_loss[epoch]))
-                sys.stdout.write('\r'+"Batch %s/%s --> (d_real,d_fake): (%s,%s) || (d_loss,g_loss) = (%s, %s)" %(batch, int(n_samples/batch_size),d_loss_real,d_loss_fake, d_loss[-1], g_loss[-1]))
-            except Exception as e:
-                logging.error(e)
-          else:
-            sys.stdout.write('\r'+"Batch %s/%s --> (d_loss, -) = (%s, -)" %(batch, int(n_samples/batch_size), d_loss[-1]))
+            half_batch = int(len(X) / 2)
+            sys.stdout.write('\r'+"[Epoch %s] Batch %s" %(epoch, batch))
+            real_images, real_labels = Y[:half_batch], np.ones((half_batch, 1, 1, 1)) - smooth_labels # see: https://github.com/soumith/ganhacks#6-use-soft-and-noisy-labels
+            fake_images, fake_labels = G.predict(X[half_batch:]), np.zeros((half_batch, 1, 1, 1)) + smooth_labels
+            set_trainability(discriminator, True)
+            d_loss_real = discriminator.train_on_batch(real_images, real_labels)
+            d_loss_fake = discriminator.train_on_batch(fake_images, fake_labels)
+            set_trainability(discriminator, False)
+            d_loss.append(0.5 * np.add(d_loss_real, d_loss_fake))
+            if (epoch % 3) == 0:
+                g_loss.append(GAN.train_on_batch(np.array(X_train[batch*epoch:batch*epoch +batch_size]), np.zeros((batch_size, 1, 1, 1))))
+        logging.info("\t\t perdida discriminador --> %s" %(d_loss[epoch]))
+        if (epoch % 3) == 0:
+          logging.info("\t\t perdida generador --> %s" %(g_loss[int(epoch/3)]))
 
         #d_loss.append(reduce(lambda x,y: (x+y)/2), d_loss_batch)
 
